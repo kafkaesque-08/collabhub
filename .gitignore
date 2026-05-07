@@ -1,0 +1,16 @@
+.next/ 
+# Build files
+.next/
+frontend/.next/
+node_modules/
+frontend/node_modules/
+ai-backend/__pycache__/
+
+# Environment secrets
+.env
+.env.local
+ai-backend/.env
+
+# OS files
+.DS_Store
+Thumbs.db
