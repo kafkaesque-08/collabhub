@@ -4,6 +4,7 @@ from fastapi import FastAPI
 from pydantic import BaseModel
 from fastapi.middleware.cors import CORSMiddleware
 from typing import List
+from ai_assistant import get_assistant_response
 
 app = FastAPI()
 
@@ -23,6 +24,10 @@ class SkillRequest(BaseModel):
     
 class TagRequest(BaseModel):
     description: str    
+    
+class assistantrequest(BaseModel):
+    question : str
+    project: dict
 
 @app.get("/health") #  simple endpoint to verify the server is alive.
 def health():
@@ -39,6 +44,9 @@ def extract_tags(request: TagRequest):
     from tagger import get_tags
     tags = get_tags(request.description)
     return {"tags": tags}    
-    
-    
+
+@app.post("/assistant")
+async def assistant(req: assistantrequest):
+    answer = get_assistant_response(req.question, req.project)
+    return {"answer":answer}
 
