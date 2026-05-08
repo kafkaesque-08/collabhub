@@ -2,10 +2,13 @@
 "use client"
 import { useState } from "react"
 import { useRouter } from "next/navigation"
-import { createClientComponentClient } from "@supabase/auth-helpers-nextjs"
+import { createClient } from "@supabase/supabase-js"
 
 export default function SignupPage() {
-  const supabase = createClientComponentClient()
+  const supabase = createClient(
+    rocess.env.NEXT_PUBLIC_SUPABASE_URL,
+    process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY
+  )
   const router = useRouter()
   const [form, setForm] = useState({
     full_name: "", email: "", college: "", year: "", password: ""
