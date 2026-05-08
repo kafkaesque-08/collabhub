@@ -6,7 +6,7 @@ import { createClient } from "@supabase/supabase-js"
 
 export default function SignupPage() {
   const supabase = createClient(
-    rocess.env.NEXT_PUBLIC_SUPABASE_URL,
+    process.env.NEXT_PUBLIC_SUPABASE_URL,
     process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY
   )
   const router = useRouter()
