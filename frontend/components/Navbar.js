@@ -14,7 +14,7 @@ export default function Navbar() {
     }
     getUser()
 
-    // Listen for login/logout changes to update the UI initials instantly
+    // Listen for login/logout changes to update the UI instantly
     const { data: authListener } = supabase.auth.onAuthStateChange((_event, session) => {
       setUser(session?.user ?? null)
     })
@@ -34,7 +34,10 @@ export default function Navbar() {
         {/* Main Navigation */}
         <div className="hidden md:flex items-center gap-2">
           {["Feed", "Explore", "Network"].map((item) => (
-            <button key={item} className="text-sm text-gray-500 hover:text-indigo-600 px-3 py-1.5 rounded-full hover:bg-indigo-50 transition-all font-medium">
+            <button 
+              key={item} 
+              className="text-sm text-gray-500 hover:text-indigo-600 px-3 py-1.5 rounded-full hover:bg-indigo-50 transition-all font-medium"
+            >
               {item}
             </button>
           ))}
@@ -44,18 +47,29 @@ export default function Navbar() {
         <div className="flex items-center gap-4">
           {user ? (
             <div className="flex items-center gap-3">
-              {/* Profile Circle: Dynamically shows your initial (e.g., 'N') instead of 'RK' */}
+              {/* Profile Circle: Shows first letter of email */}
               <div className="w-9 h-9 rounded-full bg-gradient-to-tr from-indigo-600 to-purple-600 flex items-center justify-center text-white text-sm font-bold shadow-sm cursor-pointer">
                 {user.email?.charAt(0).toUpperCase()}
               </div>
             </div>
           ) : (
-            <Link 
-              href="/login" 
-              className="text-sm bg-indigo-600 text-white px-5 py-2 rounded-full hover:bg-indigo-700 transition-all font-semibold no-underline"
-            >
-              Sign In
-            </Link>
+            <div className="flex items-center gap-4">
+              {/* Sign In Link */}
+              <Link 
+                href="/login" 
+                className="text-sm text-gray-700 hover:text-indigo-600 transition-all font-semibold no-underline"
+              >
+                Sign In
+              </Link>
+
+              {/* Sign Up Button */}
+              <Link 
+                href="/signup" 
+                className="text-sm bg-indigo-600 text-white px-5 py-2 rounded-full hover:bg-indigo-700 shadow-md transition-all font-semibold no-underline"
+              >
+                Get Started
+              </Link>
+            </div>
           )}
         </div>
       </div>
