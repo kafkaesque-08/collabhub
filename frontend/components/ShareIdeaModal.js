@@ -4,7 +4,7 @@ import { supabase } from "../lib/supabase"
 
 const TYPE_OPTIONS = [
   { value: "Seeking Team",  label: "Seeking Team",   desc: "Looking for teammates", color: "#16a34a", bg: "#dcfce7" },
-  { value: "Hiring",        label: "Hiring",         desc: "Paid role or internship", color: "#7c3aed", bg: "#ede9fe" },
+  { value: "Hiring",         label: "Hiring",         desc: "Paid role or internship", color: "#7c3aed", bg: "#ede9fe" },
   { value: "Idea Feedback", label: "Idea Feedback",  desc: "Want feedback on an idea", color: "#d97706", bg: "#fef3c7" },
 ]
 
@@ -27,15 +27,25 @@ export default function ShareIdeaModal({ user, profile, onClose, onPosted }) {
     if (!description.trim()) return
     setTagsLoading(true)
     try {
-      const res = await fetch("http://localhost:8000/tags", {
+      
+      const apiUrl = process.env.NEXT_PUBLIC_AI_API_URL || "http://localhost:8000/tags"
+      
+      const res = await fetch(apiUrl, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ description }),
       })
       const data = await res.json()
-      if (data.tags?.length > 0) setTags(data.tags)
-    } catch { }
-    setTagsLoading(false)
+      
+      if (data.tags?.length > 0) {
+        
+        setTags(prev => [...new Set([...prev, ...data.tags])])
+      }
+    } catch (err) {
+      console.error("AI Tagging unavailable:", err)
+    } finally {
+      setTagsLoading(false)
+    }
   }
 
   function addTag(e) {
@@ -57,12 +67,14 @@ export default function ShareIdeaModal({ user, profile, onClose, onPosted }) {
       return
     }
     if (!user) {
-      setError("You must be signed in to post.")
+      setError("Session expired. Please sign in again.")
       return
     }
+    
     setSubmitting(true)
     setError("")
 
+  
     const { data, error: dbError } = await supabase
       .from("projects")
       .insert({
@@ -80,12 +92,14 @@ export default function ShareIdeaModal({ user, profile, onClose, onPosted }) {
       .single()
 
     if (dbError) {
+      
       setError(dbError.message)
       setSubmitting(false)
       return
     }
 
     onPosted(data)
+    onClose()
     setSubmitting(false)
   }
 
@@ -113,7 +127,6 @@ export default function ShareIdeaModal({ user, profile, onClose, onPosted }) {
         fontFamily: "'DM Sans', sans-serif",
       }}>
 
-        
         <div style={{
           display: "flex", justifyContent: "space-between", alignItems: "center",
           padding: "18px 20px 14px",
@@ -140,7 +153,6 @@ export default function ShareIdeaModal({ user, profile, onClose, onPosted }) {
         </div>
 
         <div style={{ padding: "16px 20px 20px" }}>
-          
           <p style={{ fontSize: 12, fontWeight: 700, color: "#9ca3af", textTransform: "uppercase", letterSpacing: "0.05em", margin: "0 0 8px" }}>
             Post Type
           </p>
@@ -161,7 +173,6 @@ export default function ShareIdeaModal({ user, profile, onClose, onPosted }) {
             ))}
           </div>
 
-          
           <label style={{ fontSize: 12, fontWeight: 700, color: "#9ca3af", textTransform: "uppercase", letterSpacing: "0.05em" }}>
             Project Title
           </label>
@@ -177,7 +188,6 @@ export default function ShareIdeaModal({ user, profile, onClose, onPosted }) {
             }}
           />
 
-          
           <label style={{ fontSize: 12, fontWeight: 700, color: "#9ca3af", textTransform: "uppercase", letterSpacing: "0.05em" }}>
             Description
           </label>
@@ -200,7 +210,6 @@ export default function ShareIdeaModal({ user, profile, onClose, onPosted }) {
             {tagsLoading ? "✦ Auto-detecting tags…" : "Tags auto-detect when you finish typing"}
           </p>
 
-          
           <label style={{ fontSize: 12, fontWeight: 700, color: "#9ca3af", textTransform: "uppercase", letterSpacing: "0.05em" }}>
             Tags
           </label>
@@ -236,7 +245,6 @@ export default function ShareIdeaModal({ user, profile, onClose, onPosted }) {
             />
           </div>
 
-          
           <label style={{ fontSize: 12, fontWeight: 700, color: "#9ca3af", textTransform: "uppercase", letterSpacing: "0.05em" }}>
             GitHub Repository (Optional)
           </label>
@@ -259,7 +267,9 @@ export default function ShareIdeaModal({ user, profile, onClose, onPosted }) {
           </div>
 
           {error && (
-            <p style={{ marginTop: 10, fontSize: 13, color: "#ef4444" }}>{error}</p>
+            <p style={{ marginTop: 10, fontSize: 13, color: "#ef4444", background: "#fee2e2", padding: "8px", borderRadius: "6px" }}>
+              ⚠️ {error}
+            </p>
           )}
 
           <button
